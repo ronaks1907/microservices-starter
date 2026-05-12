@@ -6,7 +6,7 @@ A production-style microservices sample application built with **React.js**, **N
 
 The frontend provides a clean dashboard to monitor all microservices with real-time health checks and inter-service communication visualization.
 
-![Microservices Dashboard](./docs/dashboard-screenshot.png)
+![Microservices Dashboard](./docs/Microservices-Dashboard.png)
 
 **Dashboard Features:**
 - Real-time service health status (UP/DOWN indicators)
