@@ -1,0 +1,111 @@
+version: '3.9'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: microservices
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  user-service:
+    build:
+      context: ./services/user-service
+    ports:
+      - "3001:3001"
+    environment:
+      SERVICE_NAME: user-service
+      SERVICE_PORT: 3001
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: rootpass
+      MYSQL_DATABASE: microservices
+    depends_on:
+      - mysql
+
+  product-service:
+    build:
+      context: ./services/product-service
+    ports:
+      - "3002:3002"
+    environment:
+      SERVICE_NAME: product-service
+      SERVICE_PORT: 3002
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: rootpass
+      MYSQL_DATABASE: microservices
+    depends_on:
+      - mysql
+
+  order-service:
+    build:
+      context: ./services/order-service
+    ports:
+      - "3003:3003"
+    environment:
+      SERVICE_NAME: order-service
+      SERVICE_PORT: 3003
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: rootpass
+      MYSQL_DATABASE: microservices
+    depends_on:
+      - mysql
+      - product-service
+      - payment-service
+
+  payment-service:
+    build:
+      context: ./services/payment-service
+    ports:
+      - "3004:3004"
+    environment:
+      SERVICE_NAME: payment-service
+      SERVICE_PORT: 3004
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: rootpass
+      MYSQL_DATABASE: microservices
+    depends_on:
+      - mysql
+      - notification-service
+
+  notification-service:
+    build:
+      context: ./services/notification-service
+    ports:
+      - "3005:3005"
+    environment:
+      SERVICE_NAME: notification-service
+      SERVICE_PORT: 3005
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: rootpass
+      MYSQL_DATABASE: microservices
+    depends_on:
+      - mysql
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+      - payment-service
+      - notification-service
+
+volumes:
+  mysql_data:

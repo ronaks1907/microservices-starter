@@ -1,0 +1,19 @@
+{
+  "name": "microservices-demo",
+  "private": true,
+  "version": "0.1.0",
+  "author": "Ronak Prajapati <ronak.prajapati@cmarix.com>",
+  "description": "A production-ready microservices architecture for deployment practice on Docker, Kubernetes, EKS, ECS, and EC2",
+  "workspaces": [
+    "frontend",
+    "services/*"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "start:user-service": "npm --prefix services/user-service start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
