@@ -2,6 +2,18 @@ const express = require('express');
 const router = express.Router();
 const { query } = require('./db');
 
+// Detect if running in Docker
+const inDocker = process.env.DOCKER_ENV === 'true' || !process.env.MYSQL_HOST?.includes('localhost');
+const serviceHost = (port) => {
+  if (inDocker) {
+    if (port === 3001) return 'http://user-service:3001';
+    if (port === 3003) return 'http://order-service:3003';
+    if (port === 3004) return 'http://payment-service:3004';
+    if (port === 3005) return 'http://notification-service:3005';
+  }
+  return `http://localhost:${port}`;
+};
+
 router.get('/health', (req, res) => {
   res.json({ service: 'product-service', status: 'UP' });
 });

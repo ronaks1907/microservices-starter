@@ -20,6 +20,7 @@ services:
     environment:
       SERVICE_NAME: user-service
       SERVICE_PORT: 3001
+      DOCKER_ENV: "true"
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
       MYSQL_USER: root
@@ -36,6 +37,7 @@ services:
     environment:
       SERVICE_NAME: product-service
       SERVICE_PORT: 3002
+      DOCKER_ENV: "true"
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
       MYSQL_USER: root
@@ -52,6 +54,7 @@ services:
     environment:
       SERVICE_NAME: order-service
       SERVICE_PORT: 3003
+      DOCKER_ENV: "true"
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
       MYSQL_USER: root
@@ -69,6 +72,7 @@ services:
       - "3004:3004"
     environment:
       SERVICE_NAME: payment-service
+      DOCKER_ENV: "true"
       SERVICE_PORT: 3004
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
@@ -86,6 +90,7 @@ services:
       - "3005:3005"
     environment:
       SERVICE_NAME: notification-service
+      DOCKER_ENV: "true"
       SERVICE_PORT: 3005
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306

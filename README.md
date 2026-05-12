@@ -6,7 +6,7 @@ A production-style microservices sample application built with **React.js**, **N
 
 The frontend provides a clean dashboard to monitor all microservices with real-time health checks and inter-service communication visualization.
 
-![Microservices Dashboard](./docs/Microservices-Dashboard.png)
+![Microservices Dashboard](./docs/dashboard-screenshot.png)
 
 **Dashboard Features:**
 - Real-time service health status (UP/DOWN indicators)
@@ -48,7 +48,7 @@ The frontend provides a clean dashboard to monitor all microservices with real-t
 
 ---
 
-## 🐳 Option 1: Docker Compose (Recommended for Quick Start)
+## � Option 1: Docker Compose (Recommended for Quick Start)
 
 ### Installation & Setup
 
@@ -67,6 +67,7 @@ The frontend provides a clean dashboard to monitor all microservices with real-t
    - MySQL database
    - 5 microservices (user, product, order, payment, notification)
    - React frontend
+   - All with automatic inter-service communication enabled
 
 3. **Access the dashboard:**
    ```
@@ -77,7 +78,27 @@ The frontend provides a clean dashboard to monitor all microservices with real-t
 
 - All service cards should show **UP** (green badge)
 - Click **Ping Service** button to test each service
-- Scroll down to see inter-service communication responses
+- Click **Refresh Communication** button to see inter-service responses:
+  - Order Service → calls Product Service and Payment Service
+  - Payment Service → calls Notification Service
+- Scroll down to see live JSON responses from downstream services
+
+### Example Response
+
+When you click "Refresh Communication", you'll see:
+
+```json
+{
+  "service": "order-service",
+  "orders": [
+    { "id": 1, "product_id": 1, "amount": 2, "total": 49.98, "status": "COMPLETED" }
+  ],
+  "downstream": {
+    "productService": { "service": "product-service", "message": "Product service is reachable" },
+    "paymentService": { "service": "payment-service", "message": "Payment service is reachable" }
+  }
+}
+```
 
 ### Stop All Services
 
@@ -93,6 +114,7 @@ docker compose logs -f
 
 # Specific service
 docker compose logs -f user-service
+docker compose logs -f order-service
 docker compose logs -f frontend
 ```
 
@@ -263,6 +285,40 @@ Frontend Dashboard
     │
     └→ Notification Service (3005)
 ```
+
+### Smart Host Detection
+
+Each microservice automatically detects its environment and uses the correct hostname for inter-service calls:
+
+**In Docker Compose:**
+- Services use Docker service names: `http://product-service:3002`
+- Detected via: `DOCKER_ENV: "true"` environment variable
+- Example: Order Service → Product Service via `http://product-service:3002/ping`
+
+**In Manual/Local Setup:**
+- Services use localhost: `http://localhost:3002`
+- Detected automatically when `DOCKER_ENV` is not set
+- Example: Order Service → Product Service via `http://localhost:3002/ping`
+
+### Code Implementation
+
+Each service includes this intelligent routing logic:
+
+```javascript
+const inDocker = process.env.DOCKER_ENV === 'true' || !process.env.MYSQL_HOST?.includes('localhost');
+const serviceHost = (port) => {
+  if (inDocker) {
+    if (port === 3001) return 'http://user-service:3001';
+    if (port === 3002) return 'http://product-service:3002';
+    if (port === 3003) return 'http://order-service:3003';
+    if (port === 3004) return 'http://payment-service:3004';
+    if (port === 3005) return 'http://notification-service:3005';
+  }
+  return `http://localhost:${port}`;
+};
+```
+
+This ensures the same code works seamlessly in both environments without configuration changes!
 
 ---
 
